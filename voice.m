@@ -29,19 +29,6 @@ filename = 'my_audio1.wav';
 Fs = 44100/10;
 audiowrite(filename, y1, Fs);
 
-figure
-subplot(2,1,1)
-plot(t, y)
-title('Исходный сигнал')
-xlabel('Время (с)')
-ylabel('Амплитуда')
-
-subplot(2,1,2)
-plot(t1, y1)
-title('Прореженный сигнал (downsample)')
-xlabel('Время (с)')
-ylabel('Амплитуда')
-
 %% 12) Выполните прямое дискретное преобразование Фурье для оригинального звучания и для прореженного сигнала
 y_spectrum_orig = fft(y); % Спектр сигнала в комплексной форме оригинальной версии
 y_spectrum_down = fft(y1); % Спектр сигнала в комплексной форме downsample версии
@@ -49,20 +36,20 @@ y_spectrum_down = fft(y1); % Спектр сигнала в комплексно
 N_orig = length(y); % Число samples оригинальной версии
 N_down = length(y1); % Число samples downsample версии
 
-f_axis_orig = (0:N_orig-1)*(fs/N_orig); % Шкала частот оригинальной версии
-f_axis_down = (0:N_down-1)*(fs/N_down); % Шкала частот 
+f_axis_orig = (0:N_orig-1)*(fs); % Шкала частот оригинальной версии
+f_axis_down = (0:N_down-1)*(fs); % Шкала частот 
 
 figure
-plot(f_axis_orig, abs(y_spectrum_orig)/N_orig); % Визуализируем амплитудный спект оригинального сигнала
+plot(f_axis_orig, 10 * log(abs(y_spectrum_orig))); % Визуализируем амплитудный спект оригинального сигнала
 xlabel('Частота')
-ylabel('Амплитуда')
+ylabel('Амплитуда, Db')
 title('Амплитудный спектр оригинального сигнала, fs = 44100 Hz')
 grid on;
 
 figure
-plot(f_axis_down, abs(y_spectrum_down)/N_down); % Визуализируем амплитудный спект downsample сигнала
+plot(f_axis_down, 10 * log(abs(y_spectrum_down))); % Визуализируем амплитудный спект downsample сигнала
 xlabel('Частота')
-ylabel('Амплитуда')
+ylabel('Амплитуда, Db')
 title('Амплитудный спектр downsample сигнала, fs = 44100 Hz')
 grid on;
 
