@@ -36,20 +36,23 @@ y_spectrum_down = fft(y1); % Спектр сигнала в комплексно
 N_orig = length(y); % Число samples оригинальной версии
 N_down = length(y1); % Число samples downsample версии
 
-f_axis_orig = (0:N_orig-1)*(fs); % Шкала частот оригинальной версии
-f_axis_down = (0:N_down-1)*(fs); % Шкала частот 
+f_axis_orig = (0:N_orig-1)*(fs/N_orig); % Шкала частот оригинальной версии
+f_axis_down = (0:N_down-1)*(Fs/N_down); % Шкала частот 
+
+ampl_orig = abs(y_spectrum_orig(1:N_orig/2));
+ampl_down = abs(y_spectrum_down(1:N_down/2));
 
 figure
-plot(f_axis_orig, 10 * log(abs(y_spectrum_orig))); % Визуализируем амплитудный спект оригинального сигнала
+plot(f_axis_orig(1:N_orig/2), 20 * log(ampl_orig/max(ampl_orig))); % Визуализируем амплитудный спект оригинального сигнала
 xlabel('Частота')
-ylabel('Амплитуда, Db')
+ylabel('Амплитуда, dB')
 title('Амплитудный спектр оригинального сигнала, fs = 44100 Hz')
 grid on;
 
 figure
-plot(f_axis_down, 10 * log(abs(y_spectrum_down))); % Визуализируем амплитудный спект downsample сигнала
+plot(f_axis_down(1:N_down/2), 20 * log(ampl_down/max(ampl_down))); % Визуализируем амплитудный спект downsample сигнала
 xlabel('Частота')
-ylabel('Амплитуда, Db')
+ylabel('Амплитуда, dB')
 title('Амплитудный спектр downsample сигнала, fs = 44100 Hz')
 grid on;
 
