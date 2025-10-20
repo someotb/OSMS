@@ -65,10 +65,25 @@ fs = 1000;
 t = 0:1/fs:1;
 y = A * cos(2 * pi * f * t + phase);
 
+% Спектральный график для сигнала y = A * cos(2 * pi * f * t + phase)
+y_spec = fft(y);
+N_y_spec = length(y_spec);
+axis_y_spec = (0:N_y_spec-1)*(fs/N_y_spec);
+ample_y_spec = abs(y_spec(1:N_y_spec/2));
+
+figure
+plot(axis_y_spec(1:N_y_spec/2), 20 * log(ample_y_spec/max(ample_y_spec)));
+xlabel('Частота')
+ylabel('Амплитуда, dB')
+title('Амплитудный спектр оригинального сигнала(13), fs = 1000 Hz')
+grid on;
+
 bits_list = [3,4,5,6];
 errors = zeros(size(bits_list));
 
 y_normis = y / max(y);
+
+% Надо сделать график спектра оцифрованного сигнала ТУТ!
 
 figure;
 for i = 1:length(bits_list)
