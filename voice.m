@@ -43,17 +43,19 @@ ampl_orig = abs(y_spectrum_orig(1:N_orig/2));
 ampl_down = abs(y_spectrum_down(1:N_down/2));
 
 figure
-plot(f_axis_orig(1:N_orig/2), 20 * log(ampl_orig/max(ampl_orig))); % Визуализируем амплитудный спект оригинального сигнала
+plot(f_axis_orig(1:N_orig/2), 20 * log10(ampl_orig/max(ampl_orig))); % Визуализируем амплитудный спект оригинального сигнала
 xlabel('Частота')
 ylabel('Амплитуда, dB')
 title('Амплитудный спектр оригинального сигнала, fs = 44100 Hz')
+xlim([0 2205])
 grid on;
 
 figure
-plot(f_axis_down(1:N_down/2), 20 * log(ampl_down/max(ampl_down))); % Визуализируем амплитудный спект downsample сигнала
+plot(f_axis_down(1:N_down/2), 20 * log10(ampl_down/max(ampl_down))); % Визуализируем амплитудный спект downsample сигнала
 xlabel('Частота')
 ylabel('Амплитуда, dB')
 title('Амплитудный спектр downsample сигнала, fs = 44100 Hz')
+xlim([0 2205])
 grid on;
 
 %% 13) Оцените влияние разрядности АЦП на спектр сигнала
@@ -61,7 +63,7 @@ grid on;
 A = 12;
 phase = pi/6;
 f = 14;
-fs = 1000;
+fs = 44100;
 t = 0:1/fs:1;
 y = A * cos(2 * pi * f * t + phase);
 
@@ -72,10 +74,11 @@ axis_y_spec = (0:N_y_spec-1)*(fs/N_y_spec);
 ample_y_spec = abs(y_spec(1:N_y_spec/2));
 
 figure
-plot(axis_y_spec(1:N_y_spec/2), 20 * log(ample_y_spec/max(ample_y_spec)));
+plot(axis_y_spec(1:N_y_spec/2), 20 * log10(ample_y_spec/max(ample_y_spec)));
 xlabel('Частота')
 ylabel('Амплитуда, dB')
 title('Амплитудный спектр оригинального сигнала(13), fs = 1000 Hz')
+xlim([0 20])
 grid on;
 
 bits_list = [3,4,5,6];
@@ -97,6 +100,7 @@ for i = 1:length(bits_list)
     title(['Сигнал после квантования, ', num2str(bits), ' бит']);
     xlabel('Время, с');
     ylabel('Амплитуда');
+    grid on;
 end
 
 disp('Средние ошибки квантования:')
