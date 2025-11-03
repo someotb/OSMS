@@ -77,16 +77,31 @@ figure
 plot(axis_y_spec(1:N_y_spec/2), 20 * log10(ample_y_spec/max(ample_y_spec)));
 xlabel('Частота')
 ylabel('Амплитуда, dB')
-title('Амплитудный спектр оригинального сигнала(13), fs = 1000 Hz')
+title('Амплитудный спектр оригинального сигнала(13), fs = 44100 Hz')
 xlim([0 20])
 grid on;
 
 bits_list = [3,4,5,6];
 errors = zeros(size(bits_list));
 
-y_normis = y / max(y);
+y_normis = y / max(y); % Сигнал y: от -1 до 1
 
 % Надо сделать график спектра оцифрованного сигнала ТУТ!
+
+[yq_r, yq_n] = quantize_signal(y_normis, 3);
+y_spec_a = fft(yq_r);
+
+N_y_spec_a = length(yq_r);
+axis_y_spec_a = (0:N_y_spec_a-1)*(fs/N_y_spec_a); % Ось частот
+ample_y_spec_a = abs(y_spec_a(1:N_y_spec_a/2));
+
+figure
+plot(axis_y_spec_a(1:N_y_spec_a/2), 20 * log10(ample_y_spec_a/max(ample_y_spec_a)));
+xlabel('Частота')
+ylabel('Амплитуда, dB')
+title('Амплитудный спектр квантованного (оцифрованного) сигнала, 6 бит')
+xlim([0 1000])
+grid on;
 
 figure;
 for i = 1:length(bits_list)
