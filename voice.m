@@ -4,7 +4,7 @@ clear; close all; clc;
 % Максимальная частота дискретизации в спектре моего голоса примерно 19700 Hz, следовательно требуемая для оцифровки частота дискретизации 39400 Hz
 
 %% 9) Используя библиотеки работы со звуком Matlab (или Pyton) проанализируйте имеющуюся у вас запись голоса
-[y, fs] = audioread('voice.wav'); % Считываем файл с помошью audioread() ('voice.wav', duration - 4.7232) ('voice1.wav', duration - 9.5267)
+[y, fs] = audioread('voices/voice.wav'); % Считываем файл с помошью audioread() ('voice.wav', duration - 4.7232) ('voice1.wav', duration - 9.5267)
 
 %% 10) Определите частоту дискретизации, которая была использована при записи голоса на цифровой носитель
 samples = length(y); % Кол-во элементов в файле
@@ -19,44 +19,101 @@ y1 = downsample(y, 10);          % Оставляем каждый 10-й отс�
 zvuk_y = audioplayer(y, fs);    % Исходный звук
 zvuk_y1 = audioplayer(y1, fs/10);% Прореженный звук
 
-t = (0:length(y)-1) / fs;      % Ось времени для исходного сигнала
+% t = (0:length(y)-1) / fs;      % Ось времени для исходного сигнала
 t1 = (0:length(y1)-1) / (fs/10); % Ось времени для прореженного сигнала
 
 % playblocking(zvuk_y);            % Воспроизводим исходный звук и ждём окончания
 % playblocking(zvuk_y1);          % Потом прореженный звук
 
-filename = 'my_audio1.wav';
+% filename = 'my_audio1.wav';
 Fs = 44100/10;
-audiowrite(filename, y1, Fs);
+% audiowrite(filename, y1, Fs);
 
 %% 12) Выполните прямое дискретное преобразование Фурье для оригинального звучания и для прореженного сигнала
-y_spectrum_orig = fft(y); % Спектр сигнала в комплексной форме оригинальной версии
-y_spectrum_down = fft(y1); % Спектр сигнала в комплексной форме downsample версии
+y = y(:, 1);
+y1 = y1(:, 1);
 
-N_orig = length(y); % Число samples оригинальной версии
-N_down = length(y1); % Число samples downsample версии
+window_size = 131072;      
+window_size_down = min(length(y1), 16384);
+overlap = 0.5;
 
-f_axis_orig = (0:N_orig-1)*(fs/N_orig); % Шкала частот оригинальной версии
-f_axis_down = (0:N_down-1)*(Fs/N_down); % Шкала частот 
+step = round(window_size * (1 - overlap));
+N = length(y);
+num_windows = floor((N - window_size) / step) + 1;
 
-ampl_orig = abs(y_spectrum_orig(1:N_orig/2));
-ampl_down = abs(y_spectrum_down(1:N_down/2));
+window = hanning(window_size);
+spectra = zeros(window_size/2, num_windows);
 
-figure
-plot(f_axis_orig(1:N_orig/2), 20 * log10(ampl_orig/max(ampl_orig))); % Визуализируем амплитудный спект оригинального сигнала
-xlabel('Частота')
-ylabel('Амплитуда, dB')
-title('Амплитудный спектр оригинального сигнала, fs = 44100 Hz')
-xlim([0 2205])
+for i = 1:num_windows
+    start_idx = (i - 1) * step + 1;
+    end_idx = start_idx + window_size - 1;
+    if end_idx > N, break; end
+    
+    segment = y(start_idx:end_idx);
+    segment_windowed = segment .* window;
+    Y = fft(segment_windowed);
+    Y_pos = Y(1:window_size/2);
+    ampl = abs(Y_pos);
+    spectra(:, i) = ampl;
+end
+
+avg_spectrum = mean(spectra, 2);
+scaling_factor = 2 / sum(window);
+avg_spectrum = avg_spectrum * scaling_factor;
+
+Y_db_orig = 20 * log10(avg_spectrum + eps);
+Y_db_orig(Y_db_orig < -120) = -120;
+f_axis_orig = (0 : window_size/2 - 1)' * (fs / window_size);
+
+step_down = round(window_size_down * (1 - overlap));
+N_down = length(y1);
+num_windows_down = floor((N_down - window_size_down) / step_down) + 1;
+
+window_down = hanning(window_size_down);
+spectra_down = zeros(window_size_down/2, num_windows_down);
+
+for i = 1:num_windows_down
+    start_idx = (i - 1) * step_down + 1;
+    end_idx = start_idx + window_size_down - 1;
+    if end_idx > N_down, break; end
+    
+    segment = y1(start_idx:end_idx);
+    segment_windowed = segment .* window_down;
+    Y = fft(segment_windowed);
+    Y_pos = Y(1:window_size_down/2);
+    ampl = abs(Y_pos);
+    spectra_down(:, i) = ampl;
+end
+
+avg_spectrum_down = mean(spectra_down, 2);
+scaling_factor_down = 2 / sum(window_down);
+avg_spectrum_down = avg_spectrum_down * scaling_factor_down;
+
+Y_db_down = 20 * log10(avg_spectrum_down + eps);
+Y_db_down(Y_db_down < -120) = -120;
+f_axis_down = (0 : window_size_down/2 - 1)' * ((fs/10) / window_size_down);
+
+figure;
+semilogx(f_axis_orig, Y_db_orig, 'Color', [0.4 0 0.8], 'LineWidth', 1.3);
+xlabel('Frequency (Hz)');
+ylabel('Amplitude (dB)');
+title('Original Signal Spectrum');
 grid on;
+xlim([20 2000]);
+ylim([-120 0]);
+set(gca, 'FontSize', 12, 'GridAlpha', 0.3);
+box on;
 
-figure
-plot(f_axis_down(1:N_down/2), 20 * log10(ampl_down/max(ampl_down))); % Визуализируем амплитудный спект downsample сигнала
-xlabel('Частота')
-ylabel('Амплитуда, dB')
-title('Амплитудный спектр downsample сигнала, fs = 44100 Hz')
-xlim([0 2205])
+figure;
+semilogx(f_axis_down, Y_db_down, 'Color', [0.85 0 0], 'LineWidth', 1.3);
+xlabel('Frequency (Hz)');
+ylabel('Amplitude (dB)');
+title('Downsampled Signal Spectrum');
 grid on;
+xlim([20 2000]);
+ylim([-120 0]);
+set(gca, 'FontSize', 12, 'GridAlpha', 0.3);
+box on;
 
 %% 13) Оцените влияние разрядности АЦП на спектр сигнала
 % Исходные данные
