@@ -119,7 +119,7 @@ box on;
 % Исходные данные
 A = 12;
 phase = pi/6;
-f = 14;
+f = 4;
 fs = 44100;
 t = 0:1/fs:1;
 y = A * cos(2 * pi * f * t + phase);
@@ -178,10 +178,37 @@ end
 disp('Средние ошибки квантования:')
 disp(table(bits_list', errors', 'VariableNames', {'Разрядность', 'Средняя_ошибка'}))
 
+% Сделаем так, чтобы получился clipping
+bit = 5;
+y_c = y / max(y);
+coef = 10; % Во сколько раз сигнал больше максимального уровня
+[y_cq, y_cn] = quantize_signal_clip(y_c, bit, coef);
+
+figure
+plot(t, y_cq);
+title(['Усиленный сигнал после квантования, ', num2str(bit), ' бит']);
+xlabel('Время, с');
+ylabel('Амплитуда');
+grid on;
+
+
 function [yq_r, yq_n] = quantize_signal(y, bits)
     levels = 2^bits; % количество уровней
     y_norm = (y + 1) / 2; % перевод диапазона [-1,1] -> [0,1]
     y_scaled = y_norm * (levels - 1); % масштабирование под уровни
     yq_r = round(y_scaled); % округление до ближайшего уровня
+    yq_n = round(y_scaled)/max(y_scaled) * 2 - 1;
+end
+
+function [yq_r, yq_n] = quantize_signal_clip(y, bits, coef)
+    levels = 2^bits; % количество уровней
+    y_norm = (y + 1) / 2; % перевод диапазона [-1,1] -> [0,1]
+    y_scaled = y_norm * (levels - 1); % масштабирование под уровни
+    diff = (max(y_scaled) * coef - max(y_scaled))/2;
+    y_scaled = (y_scaled * coef) - diff;
+    y_scaled(y_scaled > levels - 1) = levels - 1;
+    y_scaled(y_scaled < 0) = 0;
+    yq_r = round(y_scaled); % округление до ближайшего уровня
+    yq_r = yq_r - abs(min(yq_r));
     yq_n = round(y_scaled)/max(y_scaled) * 2 - 1;
 end
