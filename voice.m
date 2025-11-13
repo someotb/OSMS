@@ -63,7 +63,7 @@ avg_spectrum = avg_spectrum * scaling_factor;
 
 Y_db_orig = 20 * log10(avg_spectrum + eps);
 Y_db_orig(Y_db_orig < -120) = -120;
-f_axis_orig = (0 : window_size/2 - 1)' * (fs / window_size);
+f_axis_orig = (0 : window_size/2 - 1) * (fs / window_size);
 
 step_down = round(window_size_down * (1 - overlap));
 N_down = length(y1);
@@ -91,7 +91,7 @@ avg_spectrum_down = avg_spectrum_down * scaling_factor_down;
 
 Y_db_down = 20 * log10(avg_spectrum_down + eps);
 Y_db_down(Y_db_down < -120) = -120;
-f_axis_down = (0 : window_size_down/2 - 1)' * ((fs/10) / window_size_down);
+f_axis_down = (0 : window_size_down/2 - 1) * ((fs/10) / window_size_down);
 
 figure;
 semilogx(f_axis_orig, Y_db_orig, 'Color', [0.4 0 0.8], 'LineWidth', 1.3);
