@@ -156,7 +156,7 @@ figure
 plot(axis_y_spec_a(1:N_y_spec_a/2), 20 * log10(ample_y_spec_a/max(ample_y_spec_a)));
 xlabel('Частота')
 ylabel('Амплитуда, dB')
-title('Амплитудный спектр квантованного (оцифрованного) сигнала, 6 бит')
+title('Амплитудный спектр квантованного (оцифрованного) сигнала, 3 бит')
 xlim([0 1000])
 grid on;
 
@@ -181,9 +181,9 @@ disp(table(bits_list', errors', 'VariableNames', {'Разрядность', 'С�
 % Сделаем так, чтобы получился clipping
 bit = 5;
 y_c = y / max(y);
-coef = 1.5; % Во сколько раз сигнал больше максимального уровня
+coef = 10; % Во сколько раз сигнал больше максимального уровня
 [y_cq] = quantize_signal_clip(y_c, bit, coef);
-[y_q] = quantize_signal_clip(y_c, bit, 1.0);
+[y_q, errors] = quantize_signal(y_c, bit);
 
 figure
 subplot(2, 1, 1);
@@ -199,7 +199,36 @@ xlabel('Время, с');
 ylabel('Амплитуда');
 grid on;
 
+% График спектра клиппированного и обычного сигнала
+N = length(y_cq);
+f = (0:N/2-1) * (fs / N);
 
+Y_cq = fft(y_cq)/N;
+Y_q  = fft(y_q)/N;
+
+Y_cq = Y_cq(1:N/2);
+Y_q  = Y_q(1:N/2);
+
+Y_cq(2:end-1) = 2*Y_cq(2:end-1);
+Y_q(2:end-1)  = 2*Y_q(2:end-1);
+
+% Перевод в dB
+Y_cq_dB = 20*log10(abs(Y_cq) + eps);
+Y_q_dB  = 20*log10(abs(Y_q)  + eps);
+
+% График
+figure;
+plot(f, Y_cq_dB, 'LineWidth', 1.2);
+hold on;
+plot(f, Y_q_dB, 'LineWidth', 1.2);
+grid on;
+
+xlabel('Частота, Гц');
+ylabel('Амплитуда, dB');
+legend('Clip + Quant', 'Normal Quant');
+xlim([0 2000]);
+ylim([-120 10]);
+title('Спектр клиппированного и обычного квантованного сигнала');
 
 function [yq_r, yq_n] = quantize_signal(y, bits)
     levels = 2^bits; % количество уровней
@@ -209,14 +238,12 @@ function [yq_r, yq_n] = quantize_signal(y, bits)
     yq_n = round(y_scaled)/max(y_scaled) * 2 - 1;
 end
 
-function [yq_r] = quantize_signal_clip(y, bits, coef)
+function yq_r = quantize_signal_clip(y, bits, coef)
+    y = max(min(y, 1), -1);
+    y = y * coef;
+    y(y > 1) = 1;
+    y(y < -1) = -1;
     levels = 2^bits;
-    y_norm = (y + 1) / 2;
-    y_scaled = y_norm * (levels - 1); % масштабирование под уровни
-    diff = (max(y_scaled) * coef - max(y_scaled))/2;
-    y_scaled = (y_scaled * coef) - diff;
-    y_scaled(y_scaled > levels - 1) = levels - 1;
-    y_scaled(y_scaled < 0) = 0;
+    y_scaled = (y + 1)/2 * (levels - 1);
     yq_r = round(y_scaled);
-    yq_r = yq_r - abs(min(yq_r));
 end
