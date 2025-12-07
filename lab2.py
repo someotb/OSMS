@@ -9,7 +9,8 @@ G_BS = 21 # Коэффициент усиления антенны BS (дБи)
 f = 1.8 # Диапазон частот (ГГц)
 num_of_cells = 3 # Число секторов на одной BS
 feeder_loss = 2 + 0.4 + 0.5 # Потери в фидере, соединителях и направленности антенны (дБ)
-mimo_gain = 3 # Число приемо-передающих антенн на BS
+mimo_num = 3.0 # Число приемо-передающих антенн на BS
+mimo_gain = 10.0 * np.log10(mimo_num)
 
 NF_BS = 2.4 # Коэффициент шума приемника BS (дБ)
 NF_UE = 6 # Коэффициент шума приемника пользователя (дБ)
@@ -65,7 +66,7 @@ MAPL_DL_test = P_BS - feeder_loss + mimo_gain + G_BS - M_int - M_pen - RxSens_UE
 PL_COST = []
 A = 46.3
 B = 33.9
-hBS = 100
+hBS = 30
 hms = 1.5
 a = (1.1 * np.log10(f_MHz)) * hms - (1.56 * np.log10(f_MHz) - 0.8) # для SU, RURAL, ROAD
 
@@ -122,7 +123,7 @@ for di in d:
     PL_LOS = 42.6 + 20.0 * np.log10(f_MHz) + 26.0 * np.log10(d_km)
     PL_WALF_LOS.append(PL_LOS)
     d_km_safe = max(d_km, 0.01)
-    L0 = 32.44 + 20.0 * np.log10(f_MHz) + 20.0 * np.log10(d_km)
+    L0 = 32.44 + 20.0 * np.log10(f_MHz) + 20.0 * np.log10(d_km_safe)
 
     if hBS > h:
         ka = 54.0
@@ -136,9 +137,6 @@ for di in d:
         kd = 18.0
     else:
         kd = 18.0 - 15.0 * ((h - hBS)/h)
-
-    if d_km <= 0:
-        d_km = 1e-6
 
     L1 = L11 + ka + kd * np.log10(d_km_safe) + kf * np.log10(f_MHz) - 9.0 * np.log10(b)
 
@@ -192,7 +190,6 @@ print(f'Максимальный радиус покрытия Walfish-Ikegami(L
 print(f'Максимальный радиус покрытия Walfish-Ikegami(NLOS): {R_WALFISH_NLOS} м')
 
 # Кол-во сайтов
-
 S_site = (1.95 * (R_COST/1000)**2) # шестигранник
 
 N_site = np.ceil(S/S_site)
@@ -201,5 +198,5 @@ S_site_in = (np.pi * (R_UMiNLOS/1000)**2) # круг
 
 N_site_in = np.ceil(S_in/S_site_in)
 
-print(f'Количество макросайтов COST: {N_site}')
+print(f'Количество макросот COST: {N_site}')
 print(f'Количество фемтосот UMINLOS: {N_site_in}')
