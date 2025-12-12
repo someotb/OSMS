@@ -39,12 +39,12 @@ max_dist = zeros(size(MAPL_DL));
 for i = 1 : length(MAPL_DL)
     diff = abs(MAPL_DL(i) - PL);
     [~, idx] = min(diff);
-    max_dist(i) = distance(idx);
+    max_dist(i) = distance(idx)^2 * 1.95;
 end
 
 figure;
 plot(temrature, max_dist);
-title("Зависимости расстояния сигнала допустимого уровня, от температуры")
+title("Зависимости радиуса соты от температуры")
 xlabel("Temprature (K)")
-ylabel("Distanse (km)");
+ylabel("Squre (km^2)");
 grid("on");
