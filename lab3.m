@@ -17,14 +17,12 @@ s3 = cos(2 * pi * f3 * t);
 a = 4 * s1 + 2 * s2 + 2 * s3;
 b = 2 * s1 + s2;
 
-% Используя Matlab определите корреляцию и нормализованую корреляцию между сигналом s1(t) и сигналами a и b. 
+% Используя Matlab определите корреляцию и нормализованую корреляцию между сигналом s1(t) и сигналами a и b.
 corr_s1_a = corr(s1, a);
 corr_norm_s1_a = corr_norm(x, y);
 
 corr_s1_b = corr(s1, b);
 corr_norm_s1_b = corr_norm(s1, b);
-
-disp(corr_norm_s1_a);
 
 fprintf("Кореляция между s1 и a: %.2f\n",corr_s1_a);
 fprintf("Кореляция между s1 и b: %.2f\n",corr_s1_b);
