@@ -84,7 +84,7 @@ plot(len_a_b, a);
 title("A");
 grid("on");
 subplot(2, 1, 2);
-plot(len_a_b, sdvig(b, b_so_max_sdvig));
+plot(len_a_b, b_so_max_sdvig);
 title("B");
 grid("on");
 
