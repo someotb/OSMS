@@ -63,7 +63,7 @@ void show_arr(vector<int> arr) {
 
 double corr(const vector<int>& x, const vector<int>& y) {
     double sum = 0;
-    for (int i = 0; i < x.size(); ++i) {
+    for (int i = 0; i < (int)x.size(); ++i) {
         int xb = 2 * x[i] - 1;
         int yb = 2 * y[i] - 1;
         sum += xb * yb;
@@ -130,7 +130,7 @@ int main() {
     vector<int> res_new(pow(2, (int)x_new.size()) - 1);
 
     gold(x_new, y_new, res_new);
-    
+
     for (int i = 0; i < pow(2, (int)x.size()) - 1; ++i) {
         cout << res[i] << " ";
     }
