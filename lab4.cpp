@@ -61,13 +61,16 @@ void show_arr(vector<int> arr) {
     }
 }
 
-double corr(vector<int> x, vector<int> y){
-    double corr_val = 0;
-    for (int i = 0; i < (int)x.size(); ++i) {
-        corr_val += x[i] * y[i];
+double corr(const vector<int>& x, const vector<int>& y) {
+    double sum = 0;
+    for (int i = 0; i < x.size(); ++i) {
+        int xb = 2 * x[i] - 1;
+        int yb = 2 * y[i] - 1;
+        sum += xb * yb;
     }
-    return corr_val;
+    return sum;
 }
+
 
 double corr_norm1(vector<int> x, vector<int> y){
     double corr_val = 0;
@@ -127,6 +130,7 @@ int main() {
     vector<int> res_new(pow(2, (int)x_new.size()) - 1);
 
     gold(x_new, y_new, res_new);
+    
     for (int i = 0; i < pow(2, (int)x.size()) - 1; ++i) {
         cout << res[i] << " ";
     }
@@ -139,11 +143,12 @@ int main() {
     cout << endl;
 
     // Вычислите значение взаимной корреляции исходной и новой последовательностей и выведите в терминал.
-    double new_corr = corr(res, res_new);
-    double new_corr_norm = corr_norm1(res, res_new);
-
-    cout << "Значение взаимной корреляции исходной и новой последовательностей: " << new_corr << endl;
-    cout << "Значение взаимной нормальной корреляции исходной и новой последовательностей: " << new_corr_norm << endl;
+    cout << "Значение взаимной корреляции исходной и новой последовательностей: " << endl;
+    auto N = pow(2, (int)x_new.size()) - 1;
+    for (int i = 0; i < N; ++i) {
+        auto shifted = cyclic_shift(res_new, res_sdvig, i);
+        cout << corr(res, shifted) / N << endl;
+    }
 
     return 0;
 }
