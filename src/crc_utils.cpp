@@ -138,3 +138,29 @@ vector<int> bits_to_samples(vector<int>& data, int N) {
 
     return samples;
 }
+
+int correlation_receiver(const vector<float>& received, const vector<int>& sync_samples) {
+    int R = received.size();
+    int S = sync_samples.size();
+
+    double max_corr = -1e18;
+    int best_pos = 0;
+
+    for (int k = 0; k <= R - S; ++k) {
+        double corr = 0.0;
+
+        for (int i = 0; i < S; ++i) {
+            corr += received[k + i] * sync_samples[i];
+        }
+
+        if (corr > max_corr) {
+            max_corr = corr;
+            best_pos = k;
+        }
+    }
+
+    cout << "Correlation peak value: " << max_corr << endl;
+    cout << "Sync starts at sample: " << best_pos << endl;
+
+    return best_pos;
+}

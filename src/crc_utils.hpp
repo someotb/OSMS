@@ -36,3 +36,6 @@ void output(std::string title, vector<int>& data);
 
 // Перевод битов в сэмплы
 vector<int> bits_to_samples(vector<int>& data, int N);
+
+// Нахождение начала синхросигнала
+int correlation_receiver(const vector<float>& received, const vector<int>& sync_samples);
