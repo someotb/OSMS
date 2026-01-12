@@ -12,10 +12,12 @@ int summator(int a, int b) {
     return 0;
 }
 
+// Сделать проверку на правильную m-последовательность
+
 void gold(vector<int> x, vector<int> y, vector<int> &res) {
     int first_x, first_y = 0;
     for (int i = 0; i < pow(2, (int)x.size()) - 1; ++i) {
-        first_x = summator(x[3], x[4]); // Если сделать x[2], x[4] и y[1], y[4], то получится примитивный полином и нормальная m-последовательность.
+        first_x = summator(x[3], x[4]); // Если сделать x[2], x[4] и y[2], y[4], то получится примитивный полином и нормальная m-последовательность.
         first_y = summator(y[1], y[4]);
         res[i] = summator(x.back(), y.back());
         x.pop_back();
