@@ -12,8 +12,6 @@ int summator(int a, int b) {
     return 0;
 }
 
-// Сделать проверку на правильную m-последовательность
-
 void gold(vector<int> x, vector<int> y, vector<int> &res) {
     int first_x, first_y = 0;
     for (int i = 0; i < pow(2, (int)x.size()) - 1; ++i) {
@@ -27,16 +25,13 @@ void gold(vector<int> x, vector<int> y, vector<int> &res) {
     }
 }
 
-vector<int> cyclic_shift(vector<int> bits, vector<int> bits_sdvig, int num_of_sdvig) {
-    bits_sdvig = bits;
-    for (int i = 0; i < num_of_sdvig; ++i) {
-        int last_el = bits_sdvig.back();
-        for (int i = bits_sdvig.size() - 1; i > 0; --i) {
-            bits_sdvig[i] = bits_sdvig[i - 1];
-        }
-        bits_sdvig[0] = last_el;
+vector<int> cyclic_shift(const vector<int>& bits, int k) {
+    int N = bits.size();
+    vector<int> res(N);
+    for (int i = 0; i < N; ++i) {
+        res[(i + k) % N] = bits[i];
     }
-    return bits_sdvig;
+    return res;
 }
 
 double auto_corr(vector<int> a, vector<int> a_sdvig) {
@@ -90,6 +85,46 @@ double corr_norm1(vector<int> x, vector<int> y){
     return corr_val;
 }
 
+void check_for_m_pos(const vector<int>& bits) {
+    int N = bits.size();
+    bool is_m = true;
+
+    // Баланс
+    int ones = 0, zeros = 0;
+    for (int b : bits) {
+        (b == 0) ? zeros++ : ones++;
+    }
+    if (abs(ones - zeros) != 1) {
+        cout << "Нарушен баланс\n";
+        is_m = false;
+    }
+
+    double expected = -1.0 / N;
+    const double eps = 1e-6;
+
+    for (int k = 1; k < N; ++k) {
+        vector<int> shifted = cyclic_shift(bits, k);
+
+        // Цикличность
+        if (shifted == bits) {
+            cout << "Период меньше N\n";
+            is_m = false;
+            break;
+        }
+
+        // Автокорреляция
+        double r = auto_corr(bits, shifted);
+        if (abs(r - expected) > eps) {
+            cout << "Нарушена автокорреляция\n";
+            is_m = false;
+            break;
+        }
+    }
+
+    if (is_m) cout << "Последовательность ЯВЛЯЕТСЯ M-последовательностью\n";
+    else cout << "Последовательность НЕ ЯВЛЯЕТСЯ M-последовательностью\n";
+}
+
 int main() {
     vector<int> x = {1, 0, 0, 0, 0}; // 16
     vector<int> y = {1, 0, 1, 1, 1}; // 23
@@ -98,6 +133,9 @@ int main() {
 
     // Выведите получившуюся последовательность Голда на экран.
     gold(x, y, res);
+
+    check_for_m_pos(res);
+
     cout << "Последовательность Голда: " << endl;
     for (int i = 0; i < pow(2, (int)x.size()) - 1; ++i) {
         cout << res[i] << " ";
@@ -110,7 +148,7 @@ int main() {
     cout << "Поэлементый циклический сдвиг последовательности и авто корреляция(b - Биты): " << endl;
     cout << "Сдвиг:    b   b+1  b+2  ..." << endl;
     for (int i = 0; i <= (int)res.size(); ++i) {
-        res_sdvig = cyclic_shift(res, res_sdvig, i);
+        res_sdvig = cyclic_shift(res, i);
         double val_auto_corr = auto_corr(res, res_sdvig);
 
         cout << setw(5) << i << ":";
@@ -148,7 +186,7 @@ int main() {
     cout << "Значение взаимной корреляции исходной и новой последовательностей: " << endl;
     auto N = pow(2, (int)x_new.size()) - 1;
     for (int i = 0; i < N; ++i) {
-        auto shifted = cyclic_shift(res_new, res_sdvig, i);
+        auto shifted = cyclic_shift(res_new, i);
         cout << corr(res, shifted) / N << endl;
     }
 
