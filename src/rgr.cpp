@@ -37,7 +37,7 @@ int main() {
     gold(x, y, res);
 
     // Выводим в файл, чтобы потом визуализировать на Python
-    ofstream fout_gold("gold_sequence.txt");
+    ofstream fout_gold("../data/gold_sequence.txt");
     for (int bit : res) fout_gold << bit << "\n";
     fout_gold.close();
 
@@ -110,7 +110,7 @@ int main() {
     ofstream fout_aligned("../data/aligned_signal_sequence.txt");
     for (float bits : aligned_signal) fout_aligned << bits << "\n";
     fout_aligned.close();
-    
+
     // 9) Принятие решений 1 или 0
-    
+
 }
