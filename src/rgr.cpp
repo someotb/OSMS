@@ -56,6 +56,10 @@ int main() {
 
     output("Gold + Data + CRC:", tx_sequence);
 
+    ofstream fout_bits("../data/bits_sequence.txt");
+    for (int bit : tx_sequence) fout_bits << bit << "\n";
+    fout_bits.close();
+
     // 5) Преобразуем биты в сигнал, на каждый бит приходится N отсчетов
     samples = bits_to_samples(tx_sequence, N);
     ofstream fout_samples("../data/samples_sequence.txt");
@@ -112,5 +116,36 @@ int main() {
     fout_aligned.close();
 
     // 9) Принятие решений 1 или 0
+    float P = 0.5;
+    float mean = 0;
+    vector<int> soluted_signal;
+    for (size_t i = 0; i + N <= aligned_signal.size(); i+=N) {
+        float summa = 0.0f;
+        for (int j = 0; j < N; ++j) {
+             summa += aligned_signal[i + j];
+        }
+        mean = summa / N;
+        soluted_signal.push_back(mean >= P ? 1 : 0);
+    }
 
+    int total_bits = tx_sequence.size(); // L+M+G
+    if (soluted_signal.size() > total_bits) {
+        soluted_signal.resize(total_bits);
+    }
+
+    ofstream fout_soluted("../data/soluted_signal_sequence.txt");
+    for (float bits : soluted_signal) fout_soluted << bits << "\n";
+    fout_soluted.close();
+
+    // 10) Удалите из полученного массива G-бит последовательности cинхронизации
+    size_t gold_len = res.size();
+    vector<int> received_data(soluted_signal.begin() + gold_len, soluted_signal.end());
+
+    // 11) Проверьте корректность приема бит с помощью CRC
+    int crc_len = G.size() - 1;
+    vector<int> data_bits(received_data.begin(), received_data.end() - crc_len);
+    vector<int> crc_bits(received_data.end() - crc_len, received_data.end());
+
+    vector<int> crc_rev = CRC_reverse(data_bits, crc_bits, G);
+    crc_check_error(crc_rev);
 }
