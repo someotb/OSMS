@@ -39,3 +39,6 @@ vector<int> bits_to_samples(vector<int>& data, int N);
 
 // Нахождение начала синхросигнала
 int correlation_receiver(const vector<float>& received, const vector<int>& sync_samples);
+
+// Преобразование 8 битов в ASCII-символ
+char bits_to_char(const vector<int>& bits, size_t start);

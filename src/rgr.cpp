@@ -148,4 +148,21 @@ int main() {
 
     vector<int> crc_rev = CRC_reverse(data_bits, crc_bits, G);
     crc_check_error(crc_rev);
+
+    bool error_found = false;
+    for (size_t i = 0; i < min(soluted_signal.size(), tx_sequence.size()); ++i) {
+        if (soluted_signal[i] != tx_sequence[i]) {
+            cout << "Bit " << i << " is incorrect!" << endl;
+            error_found = true;
+        }
+    }
+
+    if (error_found == false) {
+        string decoded_text;
+        for (size_t i = 0; i + 7 < data_bits.size(); i += 8) {
+            decoded_text += bits_to_char(data_bits, i);
+        }
+
+        cout << "Decoded text: " << decoded_text << endl;
+    } else cout << "Correct decoding is not possible\n";
 }

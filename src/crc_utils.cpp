@@ -164,3 +164,11 @@ int correlation_receiver(const vector<float>& received, const vector<int>& sync_
 
     return best_pos;
 }
+
+char bits_to_char(const vector<int>& bits, size_t start) {
+    int value = 0;
+    for (int i = 0; i < 8; ++i) {
+        value = (value << 1) | bits[start + i];
+    }
+    return static_cast<char>(value);
+}
