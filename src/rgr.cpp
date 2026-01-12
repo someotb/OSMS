@@ -15,7 +15,7 @@ int main() {
     vector<int> res(pow(2, (int)x.size()) - 1);
     vector<int> bin_fullname;
     vector<int> samples;
-    int N = 10; // Upsample koef
+    int N = 20; // Upsample koef
 
     // 1,2) Fullname in ASCII
     fullname_to_binary(bin_fullname);
@@ -149,6 +149,7 @@ int main() {
     vector<int> crc_rev = CRC_reverse(data_bits, crc_bits, G);
     crc_check_error(crc_rev);
 
+    // 12) Если нет ошибок, то декодировать обратно в текст
     bool error_found = false;
     for (size_t i = 0; i < min(soluted_signal.size(), tx_sequence.size()); ++i) {
         if (soluted_signal[i] != tx_sequence[i]) {
@@ -165,4 +166,14 @@ int main() {
 
         cout << "Decoded text: " << decoded_text << endl;
     } else cout << "Correct decoding is not possible\n";
+
+    /*
+     * 13) Надо запустить программу 3 раза, для N = 5, 10, 20
+     * Данные сохранять в специальную папку `data_for_13ex`
+     * В ней уже есть 3 текстовых файла с данными, которые я тестировал
+     * с входными данными:
+     * 1) fullname: Kirill Liubimov
+     * 2) Position to insert signal: 100
+     * 3) Deviation of noise: 0.2
+     */
 }
