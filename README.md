@@ -87,3 +87,10 @@ Nx(L+M+G) нулей и единиц – но это уже временные �
 ```bash
 mkdir -p data # В корне проекта
 ```
+
+## Запуск
+> Я запускаю из `src`:
+```
+clear; g++ -Wall rgr.cpp crc_utils.cpp -o ../bin/rgr; ../bin/rgr
+clear; g++ -Wall addit_task.cpp crc_utils.cpp -o ../bin/addit_task; ../bin/addit_task
+```
