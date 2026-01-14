@@ -34,7 +34,7 @@ int main() {
 
     vector<float> sigmas = {0.4f,0.6f,0.8f,1.0f,1.8f};
     vector<int> Nas = {5, 20, 100, 200};
-    ofstream fout("../data/data_for_additional_task.txt");
+    ofstream fout("../data_for_additional_task/p_crc_vs_N.txt");
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
