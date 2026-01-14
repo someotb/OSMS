@@ -5,7 +5,7 @@
 #include <iostream>
 #include "crc_utils.hpp"
 
-constexpr int TRIALS = 20;
+constexpr int TRIALS = 5;
 using namespace std;
 
 /*
@@ -33,14 +33,17 @@ int main() {
     tx.insert(tx.end(), crc.begin(), crc.end());
 
     vector<float> sigmas = {0.4f,0.6f,0.8f,1.0f,1.8f};
-    vector<int> Nas = {5, 20, 100, 200};
+    // vector<int> nas = {5, 20, 100, 200};
+    vector<int> nas;
+    for (int i = 0; i < 200; i += 5) nas.push_back(i);
     ofstream fout("../data_for_additional_task/p_crc_vs_N.txt");
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
     for (float sigma : sigmas) {
-        for (int N : Nas) {
+        for (int N : nas) {
             int ok = 0;
+            cout << "Experiment with: Sigma=" << sigma << ", N=" << N << "is running..." << endl;
             for (int t = 0; t < TRIALS; ++t) {
                 Result r = run_experiment(N, sigma, 100, tx, gold_bits, G);
                 if (r.crc_ok) ok++;

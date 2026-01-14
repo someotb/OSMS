@@ -9,7 +9,7 @@ with open("../data_for_additional_task/p_crc_vs_N.txt") as f:
         sigma_data[sigma]["N"].append(N)
         sigma_data[sigma]["p"].append(p)
 
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(12, 6))
 for sigma, data in sigma_data.items():
     plt.plot(data["N"], data["p"], marker="o", label=f"sigma={sigma}")
 
