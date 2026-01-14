@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 sigma_data = {}
-with open("../data/p_crc_vs_N.txt") as f:
+with open("../data/data_for_additional_task.txt") as f:
     for line in f:
         sigma, N, p = map(float, line.strip().split())
         if sigma not in sigma_data:
