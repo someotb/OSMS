@@ -108,7 +108,9 @@ int main() {
 
     // 8) Найдем начало синхросигнала
     vector<int> gold_samples = bits_to_samples(res, N);
-    int sync_pos = correlation_receiver(noisy_signal, gold_samples);
+    CorrResult corr = correlation_receiver(noisy_signal, gold_samples);
+    int sync_pos = corr.pos;
+    double corr_peak = corr.peak;
     vector<float> aligned_signal(noisy_signal.begin() + sync_pos, noisy_signal.end());
 
     ofstream fout_aligned("../data/aligned_signal_sequence.txt");

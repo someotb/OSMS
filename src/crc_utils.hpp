@@ -3,6 +3,18 @@
 #include <string>
 using std::vector;
 
+// Структура для результата корреляции
+struct CorrResult {
+    int pos;
+    double peak;
+};
+
+// Структура для результата CRC и кореляционного пика
+struct Result {
+    bool crc_ok;
+    double corr_peak;
+};
+
 // Преобразование десятичного числа в бинарный вектор (8 бит)
 void decimal_to_binary(int decimal, vector<int>& binary);
 
@@ -35,10 +47,13 @@ bool check_for_m_pos(const vector<int>& bits);
 void output(std::string title, vector<int>& data);
 
 // Перевод битов в сэмплы
-vector<int> bits_to_samples(vector<int>& data, int N);
+vector<int> bits_to_samples(const vector<int>& data, int N);
 
 // Нахождение начала синхросигнала
-int correlation_receiver(const vector<float>& received, const vector<int>& sync_samples);
+CorrResult correlation_receiver(const vector<float>& received, const vector<int>& sync_samples);
 
 // Преобразование 8 битов в ASCII-символ
 char bits_to_char(const vector<int>& bits, size_t start);
+
+// Функция объединяющая в себе весь эксперимент описаный в РГР, нужна для выполнения дополнительного задания
+Result run_experiment(int N, float sigma, int signal_pos, const vector<int>& tx_sequence, const vector<int>& gold_bits, const vector<int>& G);

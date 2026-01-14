@@ -1,9 +1,12 @@
 #include "crc_utils.hpp"
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <algorithm>
 #include <cmath>
 #include <vector>
+#include <random>
+
 using namespace std;
 
 void decimal_to_binary(int decimal, vector<int>& binary) {
@@ -56,7 +59,8 @@ vector<int> CRC_reverse(vector<int> data, vector<int> crc, const vector<int> gen
 }
 
 void crc_check_error(vector<int> crc_rev) {
-    bool ok = count(crc_rev.begin(), crc_rev.end(), 0) == crc_rev.size();
+    size_t cnt = count(crc_rev.begin(), crc_rev.end(), 0);
+    bool ok = (cnt == crc_rev.size());
     if (ok) cout << "No Errors in data!" << endl;
     else cout << "Errors in data!" << endl;
 }
@@ -126,7 +130,7 @@ void output(std::string title, vector<int>& data) {
     cout << "\n\n";
 }
 
-vector<int> bits_to_samples(vector<int>& data, int N) {
+vector<int> bits_to_samples(const vector<int>& data, int N) {
     vector<int> samples;
     samples.reserve(data.size() * N);
 
@@ -139,7 +143,7 @@ vector<int> bits_to_samples(vector<int>& data, int N) {
     return samples;
 }
 
-int correlation_receiver(const vector<float>& received, const vector<int>& sync_samples) {
+CorrResult correlation_receiver(const vector<float>& received, const vector<int>& sync_samples) {
     int R = received.size();
     int S = sync_samples.size();
 
@@ -148,10 +152,8 @@ int correlation_receiver(const vector<float>& received, const vector<int>& sync_
 
     for (int k = 0; k <= R - S; ++k) {
         double corr = 0.0;
-
-        for (int i = 0; i < S; ++i) {
+        for (int i = 0; i < S; ++i)
             corr += received[k + i] * sync_samples[i];
-        }
 
         if (corr > max_corr) {
             max_corr = corr;
@@ -159,11 +161,9 @@ int correlation_receiver(const vector<float>& received, const vector<int>& sync_
         }
     }
 
-    cout << "Correlation peak value: " << max_corr << endl;
-    cout << "Sync starts at sample: " << best_pos << endl;
-
-    return best_pos;
+    return { best_pos, max_corr };
 }
+
 
 char bits_to_char(const vector<int>& bits, size_t start) {
     int value = 0;
@@ -171,4 +171,73 @@ char bits_to_char(const vector<int>& bits, size_t start) {
         value = (value << 1) | bits[start + i];
     }
     return static_cast<char>(value);
+}
+
+Result run_experiment(int N, float sigma, int signal_pos, const vector<int>& tx_sequence, const vector<int>& gold_bits, const vector<int>& G) {
+    Result res;
+    res.crc_ok = false;
+    res.corr_peak = 0.0;
+
+    vector<int> samples = bits_to_samples(
+        const_cast<vector<int>&>(tx_sequence), N
+    );
+
+    vector<int> zeros(samples.size() * 2, 0);
+    if (signal_pos < 0) signal_pos = 0;
+    if (signal_pos > (int)(zeros.size() - samples.size()))
+        signal_pos = zeros.size() - samples.size();
+
+    vector<int> signal = zeros;
+    for (size_t i = 0; i < samples.size(); ++i)
+        signal[signal_pos + i] = samples[i];
+
+    static default_random_engine generator(random_device{}());
+    normal_distribution<float> distribution(0.0, sigma);
+
+    vector<float> noisy_signal(signal.size());
+    for (size_t i = 0; i < signal.size(); ++i)
+        noisy_signal[i] = signal[i] + distribution(generator);
+
+    vector<int> gold_samples = bits_to_samples(const_cast<vector<int>&>(gold_bits), N);
+
+    CorrResult corr = correlation_receiver(noisy_signal, gold_samples);
+
+    res.corr_peak = corr.peak;
+
+    if (corr.pos + gold_samples.size() >= noisy_signal.size()) return res;
+
+    vector<float> aligned_signal(noisy_signal.begin() + corr.pos, noisy_signal.end());
+
+    vector<int> decided_bits;
+    for (size_t i = 0; i + N <= aligned_signal.size(); i += N) {
+        float sum = 0.0f;
+        for (int j = 0; j < N; ++j)
+            sum += aligned_signal[i + j];
+
+        float mean = sum / N;
+        decided_bits.push_back(mean >= 0.5f ? 1 : 0);
+    }
+
+    if (decided_bits.size() < tx_sequence.size())
+        return res;
+
+    decided_bits.resize(tx_sequence.size());
+
+    size_t gold_len = gold_bits.size();
+    if (decided_bits.size() <= gold_len) return res;
+
+    vector<int> received_data(decided_bits.begin() + gold_len, decided_bits.end());
+
+    size_t crc_len = G.size() - 1;
+    if (received_data.size() <= crc_len)
+        return res;
+
+    vector<int> data_bits(received_data.begin(), received_data.end() - crc_len);
+    vector<int> crc_bits(received_data.end() - crc_len, received_data.end());
+
+    vector<int> crc_rev = CRC_reverse(data_bits, crc_bits, G);
+
+    res.crc_ok = (count(crc_rev.begin(), crc_rev.end(), 0) == (int)crc_rev.size());
+
+    return res;
 }
