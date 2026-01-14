@@ -5,7 +5,7 @@
 #include <iostream>
 #include "crc_utils.hpp"
 
-constexpr int TRIALS = 5;
+constexpr int TRIALS = 100;
 using namespace std;
 
 /*
@@ -43,7 +43,7 @@ int main() {
     for (float sigma : sigmas) {
         for (int N : nas) {
             int ok = 0;
-            cout << "Experiment with: Sigma=" << sigma << ", N=" << N << "is running..." << endl;
+            cout << "Experiment with: Sigma=" << sigma << ", N=" << N << " is running..." << endl;
             for (int t = 0; t < TRIALS; ++t) {
                 Result r = run_experiment(N, sigma, 100, tx, gold_bits, G);
                 if (r.crc_ok) ok++;
