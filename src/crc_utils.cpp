@@ -21,13 +21,19 @@ void fullname_to_binary(vector<int>& binary_string_fullname) {
     vector<int> binary_word;
 
     cout << "Enter your name and surname: ";
-    getline(cin, input);
+    getline(cin >> std::ws, input);
 
     for (char c : input) {
+        binary_word.clear();
         decimal_to_binary(static_cast<unsigned char>(c), binary_word);
-        binary_string_fullname.insert(binary_string_fullname.end(), binary_word.begin(), binary_word.end());
+        binary_string_fullname.insert(
+            binary_string_fullname.end(),
+            binary_word.begin(),
+            binary_word.end()
+        );
     }
 }
+
 
 vector<int> CRC(vector<int> data, const vector<int>& generator) {
     int n = generator.size();
