@@ -58,3 +58,6 @@ elif mode == 2:
 
     plt.title("Автокорреляция и вероятность декодирования от σ")
     plt.show()
+
+else:
+    print("Please enter a valid experiment number (1 or 2).\n")

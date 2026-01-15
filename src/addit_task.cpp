@@ -64,7 +64,7 @@ int main() {
     }
 
     // 2)
-    if (mode == 2) {
+    else if (mode == 2) {
         cout << "Starting experiment #2...\n";
         ofstream fout2("../data_for_additional_task/corr_and_crc_vs_sigma.txt");
         vector<float> sigmas2;
@@ -94,4 +94,5 @@ int main() {
         std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
         fout2.close();
     }
+    else cout << "Please enter a valid experiment number (1 or 2).\n";
 }
