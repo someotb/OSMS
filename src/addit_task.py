@@ -4,7 +4,7 @@ mode = int(input("Which experiment you wanna try: #1 - (1), #2 - (2): "))
 
 if mode == 1:
     sigma_data = {}
-    with open("../data_for_additional_task/p_crc_vs_N(2hours).txt") as f:
+    with open("../data_for_additional_task/p_crc_vs_N(trials=10, norm_corr).txt") as f:
         for line in f:
             sigma, N, p = map(float, line.strip().split())
             if sigma not in sigma_data:
@@ -26,7 +26,9 @@ if mode == 1:
 
 elif mode == 2:
     data = {}
-    with open("../data_for_additional_task/corr_and_crc_vs_sigma.txt") as f:
+    with open(
+        "../data_for_additional_task/corr_and_crc_vs_sigma(trials=10,norm_corr).txt"
+    ) as f:
         for line in f:
             N, sigma, corr, p = map(float, line.split())
             if N not in data:

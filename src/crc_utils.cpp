@@ -153,8 +153,11 @@ CorrResult correlation_receiver(const vector<float>& received, const vector<int>
     int R = received.size();
     int S = sync_samples.size();
 
-    double max_corr = -1e18;
+    double max_corr = -1;
     int best_pos = 0;
+
+    double sync_sum = 0;
+    for (size_t i = 0; i < sync_samples.size(); ++i) sync_sum += sync_samples[i] * sync_samples[i];
 
     for (int k = 0; k <= R - S; ++k) {
         double corr = 0.0;
@@ -167,6 +170,34 @@ CorrResult correlation_receiver(const vector<float>& received, const vector<int>
         }
     }
 
+    return { best_pos, max_corr };
+}
+
+CorrResult correlation_receiver_norm(const vector<float>& received, const vector<int>& sync_samples) {
+    int R = received.size();
+    int S = sync_samples.size();
+
+    double max_corr = -1.0;
+    int best_pos = 0;
+    double sync_sum = 0;
+    for (int i = 0; i < S; ++i) sync_sum += sync_samples[i] * sync_samples[i];
+
+    for (int k = 0; k <= R - S; ++k) {
+        double corr = 0.0;
+        double x_2 = 0.0;
+        double xy = 0.0;
+        for (int i = 0; i < S; ++i) {
+            xy += (received[k + i] * sync_samples[i]);
+            x_2 += received[k + i] * received[k + i];
+        }
+        if (x_2 > 0) corr = xy / sqrt(x_2 * sync_sum);
+        else continue;
+
+        if (corr > max_corr) {
+            max_corr = corr;
+            best_pos = k;
+        }
+    }
     return { best_pos, max_corr };
 }
 
@@ -206,7 +237,7 @@ Result run_experiment(int N, float sigma, int signal_pos, const vector<int>& tx_
 
     vector<int> gold_samples = bits_to_samples(const_cast<vector<int>&>(gold_bits), N);
 
-    CorrResult corr = correlation_receiver(noisy_signal, gold_samples);
+    CorrResult corr = correlation_receiver_norm(noisy_signal, gold_samples);
 
     res.corr_peak = corr.peak;
 

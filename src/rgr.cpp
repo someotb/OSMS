@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cstdio>
 #include<iostream>
 #include <vector>
@@ -93,12 +94,12 @@ int main() {
     normal_distribution<float> distribution(0.0, sigma);
 
     vector<float> noise(signal.size(), 0.0f);
-    for (int i = 0; i < signal.size(); ++i) {
+    for (size_t i = 0; i < signal.size(); ++i) {
         noise[i] = distribution(generator);
     }
 
     vector<float> noisy_signal(signal.size(), 0.0f);
-    for (int i = 0; i < signal.size(); ++i) {
+    for (size_t i = 0; i < signal.size(); ++i) {
         noisy_signal[i] = signal[i] + noise[i];
     }
 
@@ -110,7 +111,6 @@ int main() {
     vector<int> gold_samples = bits_to_samples(res, N);
     CorrResult corr = correlation_receiver(noisy_signal, gold_samples);
     int sync_pos = corr.pos;
-    double corr_peak = corr.peak;
     vector<float> aligned_signal(noisy_signal.begin() + sync_pos, noisy_signal.end());
 
     ofstream fout_aligned("../data/aligned_signal_sequence.txt");
@@ -130,7 +130,7 @@ int main() {
         soluted_signal.push_back(mean >= P ? 1 : 0);
     }
 
-    int total_bits = tx_sequence.size(); // L+M+G
+    size_t total_bits = tx_sequence.size(); // L+M+G
     if (soluted_signal.size() > total_bits) {
         soluted_signal.resize(total_bits);
     }

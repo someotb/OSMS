@@ -5,7 +5,7 @@
 #include <iostream>
 #include "crc_utils.hpp"
 
-constexpr int TRIALS = 1;
+constexpr int TRIALS = 10;
 using namespace std;
 
 /*
@@ -68,7 +68,7 @@ int main() {
         cout << "Starting experiment #2...\n";
         ofstream fout2("../data_for_additional_task/corr_and_crc_vs_sigma.txt");
         vector<float> sigmas2;
-        for (float s = 0.0f; s <= 4.0f; s += 0.2f) sigmas2.push_back(s);
+        for (double s = 0.0; s <= 4.0 + 1e-9; s += 0.2) sigmas2.push_back(s);
         vector<int> nas2 = {5, 20, 100, 200};
 
         auto start_time = std::chrono::high_resolution_clock::now();
@@ -77,8 +77,8 @@ int main() {
             for (float sigma : sigmas2) {
                 double corr_sum = 0.0;
                 int crc_ok_cnt = 0;
+                cout << "Experiment #2 with: Sigma=" << sigma << ", N=" << N << " is running..." << endl;
                 for (int t = 0; t < TRIALS; ++t) {
-                    cout << "Experiment #2 with: Sigma=" << sigma << ", N=" << N << " is running..." << endl;
                     Result r = run_experiment(N, sigma, 100, tx, gold_bits, G);
                     corr_sum += r.corr_peak;
                     if (r.crc_ok) crc_ok_cnt++;
